@@ -82,4 +82,5 @@ package cva6_config_pkg;
        localparam CVA6ConfigRvfiTrace = 0;
     `endif
 
+    localparam XAmoEnable = 1;
 endpackage

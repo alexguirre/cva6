@@ -166,6 +166,8 @@ package ariane_pkg;
 `endif
     localparam bit RVA = cva6_config_pkg::CVA6ConfigAExtEn; // Is A extension enabled
 
+    localparam bit XAMO = cva6_config_pkg::XAmoEnable; // Is our custom eXtended Atomic Operations extension enabled
+
     // Transprecision floating-point extensions configuration
     localparam bit XF16    = cva6_config_pkg::CVA6ConfigF16En; // Is half-precision float extension (Xf16) enabled
     localparam bit XF16ALT = cva6_config_pkg::CVA6ConfigF16AltEn; // Is alternative half-precision float extension (Xf16alt) enabled
@@ -546,7 +548,11 @@ package ariane_pkg;
                                // Shift with Add (Bitmanip)
                                SH1ADD, SH2ADD, SH3ADD,
                                // Bitmanip Logical with negate op (Bitmanip)
-                               ANDN, ORN, XNOR
+                               ANDN, ORN, XNOR,
+
+                               // eXtended Atomic Memory Operations
+                               XAMO_INCW, XAMO_DECW,
+                               XAMO_INCD, XAMO_DECD
                              } fu_op;
 
     typedef struct packed {
@@ -636,6 +642,9 @@ package ariane_pkg;
             [AMO_LRW:AMO_MINDU]: begin
                 return 1'b1;
             end
+            [XAMO_INCW:XAMO_DECD]: begin
+                return 1'b1;
+            end
             default: return 1'b0;
         endcase
     endfunction
@@ -714,22 +723,31 @@ package ariane_pkg;
     // --------------------
     // Atomics
     // --------------------
-    typedef enum logic [3:0] {
-        AMO_NONE =4'b0000,
-        AMO_LR   =4'b0001,
-        AMO_SC   =4'b0010,
-        AMO_SWAP =4'b0011,
-        AMO_ADD  =4'b0100,
-        AMO_AND  =4'b0101,
-        AMO_OR   =4'b0110,
-        AMO_XOR  =4'b0111,
-        AMO_MAX  =4'b1000,
-        AMO_MAXU =4'b1001,
-        AMO_MIN  =4'b1010,
-        AMO_MINU =4'b1011,
-        AMO_CAS1 =4'b1100, // unused, not part of riscv spec, but provided in OpenPiton
-        AMO_CAS2 =4'b1101  // unused, not part of riscv spec, but provided in OpenPiton
+    typedef enum logic [4:0] {
+        AMO_NONE =5'b00000,
+        AMO_LR   =5'b00001,
+        AMO_SC   =5'b00010,
+        AMO_SWAP =5'b00011,
+        AMO_ADD  =5'b00100,
+        AMO_AND  =5'b00101,
+        AMO_OR   =5'b00110,
+        AMO_XOR  =5'b00111,
+        AMO_MAX  =5'b01000,
+        AMO_MAXU =5'b01001,
+        AMO_MIN  =5'b01010,
+        AMO_MINU =5'b01011,
+        AMO_CAS1 =5'b01100, // unused, not part of riscv spec, but provided in OpenPiton
+        AMO_CAS2 =5'b01101, // unused, not part of riscv spec, but provided in OpenPiton
+
+        // eXtended Atomic Memory Operations
+        XAMO_INC =5'b10000,
+        XAMO_DEC =5'b10001
     } amo_t;
+
+    // eXtended Atomic Memory Operations AXI interface
+    localparam XAMO_ATOP_NONE = 6'b000000;
+    localparam XAMO_ATOP_INC  = 6'b100000;
+    localparam XAMO_ATOP_DEC  = 6'b100001;
 
     typedef struct packed {
         logic                  valid;      // valid flag

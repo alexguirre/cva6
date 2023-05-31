@@ -1063,6 +1063,38 @@ module decoder import ariane_pkg::*; (
                     end
                 end
 
+                // ----------------------------------
+                // eXtended Atomic Operations
+                // ----------------------------------
+                riscv::OpcodeXAmo: begin
+                    instruction_o.fu  = STORE;
+                    instruction_o.rs1[4:0] = instr.atype.rs1;
+                    instruction_o.rs2[4:0] = instr.atype.rs2;
+                    instruction_o.rd[4:0]  = instr.atype.rd;
+                    $display("[XAMO:decoder] XAMO instruction at pc=%x (instr=%x, opcode=%x, subopcode=%x, width=%x, rs1=%x, rs2=%x, rd=%x)",
+                             pc_i, instr, instr.rtype.opcode, instr.atype.funct5, instr.atype.funct3, instr.atype.rs1, instr.atype.rs2, instr.atype.rd);
+                    // words
+                    if (XAMO && instr.atype.funct3 == 3'h2) begin
+                        $display("[XAMO:decoder]  W instruction");
+                        unique case (instr.atype.funct5)
+                            5'h0:  instruction_o.op = ariane_pkg::XAMO_INCW;
+                            5'h1:  instruction_o.op = ariane_pkg::XAMO_DECW;
+                            default: illegal_instr = 1'b1;
+                        endcase
+                    // double words
+                    end else if (XAMO && instr.atype.funct3 == 3'h3) begin
+                        $display("[XAMO:decoder]  D instruction");
+                        unique case (instr.atype.funct5)
+                            5'h0:  instruction_o.op = ariane_pkg::XAMO_INCD;
+                            5'h1:  instruction_o.op = ariane_pkg::XAMO_DECD;
+                            default: illegal_instr = 1'b1;
+                        endcase
+                    end else begin
+                        $display("[XAMO:decoder]  illegal instruction");
+                        illegal_instr = 1'b1;
+                    end
+                end
+
                 // --------------------------------
                 // Control Flow Instructions
                 // --------------------------------

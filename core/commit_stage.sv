@@ -195,7 +195,7 @@ module commit_stage import ariane_pkg::*; #(
             // ------------------
             // AMO
             // ------------------
-            if (RVA && instr_0_is_amo) begin
+            if ((RVA || XAMO) && instr_0_is_amo) begin
                 // AMO finished
                 commit_ack_o[0] = amo_resp_i.ack;
                 // flush the pipeline

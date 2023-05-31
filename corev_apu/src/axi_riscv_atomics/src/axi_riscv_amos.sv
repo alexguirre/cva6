@@ -976,6 +976,7 @@ module axi_riscv_amos #(
         .DATA_WIDTH ( RISCV_WORD_WIDTH )
     ) i_amo_alu (
         .amo_op_i           ( atop_q        ),
+        .amo_xop_i          ( aw_user_q     ),
         .amo_operand_a_i    ( alu_operand_a ),
         .amo_operand_b_i    ( alu_operand_b ),
         .amo_result_o       ( alu_result    )

@@ -57,6 +57,16 @@ module amo_alu (
                 adder_operand_b = -$unsigned(amo_operand_b_i);
                 amo_result_o = adder_sum[64] ? amo_operand_a_i : amo_operand_b_i;
             end
+            ariane_pkg::XAMO_INC: begin
+                $display("[XAMO:amo_alu] XAMO_INC");
+                amo_result_o = amo_operand_a_i + 1;
+                $display("[XAMO:amo_alu]   amo_operand_a_i=%x, amo_result_o=%x", amo_operand_a_i, amo_result_o);
+            end
+            ariane_pkg::XAMO_DEC: begin
+                $display("[XAMO:amo_alu] XAMO_DEC");
+                amo_result_o = amo_operand_a_i - 1;
+                $display("[XAMO:amo_alu]   amo_operand_a_i=%x, amo_result_o=%x", amo_operand_a_i, amo_result_o);
+            end
             default: amo_result_o = '0;
         endcase
     end

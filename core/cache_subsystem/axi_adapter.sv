@@ -440,6 +440,14 @@ module axi_adapter #(
       ariane_pkg::AMO_MINU: result = {axi_pkg::ATOP_ATOMICLOAD, axi_pkg::ATOP_LITTLE_END, axi_pkg::ATOP_UMIN};
       ariane_pkg::AMO_CAS1: result = {axi_pkg::ATOP_NONE, 4'b0000}; // Unsupported
       ariane_pkg::AMO_CAS2: result = {axi_pkg::ATOP_NONE, 4'b0000}; // Unsupported
+      ariane_pkg::XAMO_INC: begin
+        $display("[XAMO:axi_adapter] atop_from_amo(XAMO_INC)");
+        result = {axi_pkg::ATOP_ATOMICLOAD, axi_pkg::ATOP_LITTLE_END, axi_pkg::ATOP_UMIN};
+      end
+      ariane_pkg::XAMO_DEC: begin
+        $display("[XAMO:axi_adapter] atop_from_amo(XAMO_DEC)");
+        result = {axi_pkg::ATOP_ATOMICLOAD, axi_pkg::ATOP_LITTLE_END, axi_pkg::ATOP_UMIN};
+      end
       default: result = 6'b000000;
     endcase
 

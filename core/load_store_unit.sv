@@ -399,7 +399,8 @@ module load_store_unit import ariane_pkg::*; #(
                 AMO_LRD, AMO_SCD,
                 AMO_SWAPD, AMO_ADDD, AMO_ANDD, AMO_ORD,
                 AMO_XORD, AMO_MAXD, AMO_MAXDU, AMO_MIND,
-                AMO_MINDU: begin
+                AMO_MINDU,
+                XAMO_INCD, XAMO_DECD: begin
                     if (lsu_ctrl.vaddr[2:0] != 3'b000) begin
                         data_misaligned = 1'b1;
                     end
@@ -409,7 +410,8 @@ module load_store_unit import ariane_pkg::*; #(
                 AMO_LRW, AMO_SCW,
                 AMO_SWAPW, AMO_ADDW, AMO_ANDW, AMO_ORW,
                 AMO_XORW, AMO_MAXW, AMO_MAXWU, AMO_MINW,
-                AMO_MINWU: begin
+                AMO_MINWU,
+                XAMO_INCW, XAMO_DECW: begin
                     if (lsu_ctrl.vaddr[1:0] != 2'b00) begin
                         data_misaligned = 1'b1;
                     end

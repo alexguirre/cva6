@@ -158,6 +158,7 @@ module cva6_icache_axi_wrapper import ariane_pkg::*; import wt_cache_pkg::*; #(
     .wr_id_i         ( '0                ),
     .wr_lock_i       ( '0                ),
     .wr_atop_i       ( '0                ),
+    .wr_xatop_i      ( '0                ),
     .wr_rdy_i        ( '0                ),
     .wr_valid_o      (                   ),
     .wr_id_o         (                   ),

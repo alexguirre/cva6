@@ -235,6 +235,8 @@ package riscv;
     localparam OpcodeRsrvd3    = 7'b11_101_11;
     localparam OpcodeCustom3   = 7'b11_110_11;
 
+    localparam OpcodeXAmo     = OpcodeCustom0;
+
     // RV64C/RV32C listings:
     // Quadrant 0
     localparam OpcodeC0             = 2'b00;

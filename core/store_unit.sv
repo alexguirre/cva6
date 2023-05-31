@@ -197,6 +197,14 @@ module store_unit import ariane_pkg::*; (
             AMO_MAXWU, AMO_MAXDU: amo_op_d = AMO_MAXU;
             AMO_MINW, AMO_MIND:   amo_op_d = AMO_MIN;
             AMO_MINWU, AMO_MINDU: amo_op_d = AMO_MINU;
+            XAMO_INCW, XAMO_INCD: begin
+                $display("[XAMO:store_unit] XAMO_INC");
+                amo_op_d = XAMO_INC;
+            end
+            XAMO_DECW, XAMO_DECD: begin
+                $display("[XAMO:store_unit] XAMO_DEC");
+                amo_op_d = XAMO_DEC;
+            end
             default: amo_op_d = AMO_NONE;
         endcase
     end

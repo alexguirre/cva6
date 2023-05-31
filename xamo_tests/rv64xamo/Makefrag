@@ -1,0 +1,10 @@
+#=======================================================================
+# Makefrag for rv64xamo tests
+#-----------------------------------------------------------------------
+
+rv64xamo_sc_tests = \
+	xamoinc_d xamodec_d \
+	xamoinc_w xamodec_w \
+
+rv64xamo_p_tests = $(addprefix rv64xamo-p-, $(rv64xamo_sc_tests))
+rv64xamo_v_tests = $(addprefix rv64xamo-v-, $(rv64xamo_sc_tests))

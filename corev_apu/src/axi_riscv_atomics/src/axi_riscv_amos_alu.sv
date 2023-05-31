@@ -14,6 +14,7 @@ module axi_riscv_amos_alu # (
     parameter int unsigned DATA_WIDTH = 0
 ) (
     input  logic [5:0]              amo_op_i,
+    input  logic [5:0]              amo_xop_i,
     input  logic [DATA_WIDTH-1:0]   amo_operand_a_i,
     input  logic [DATA_WIDTH-1:0]   amo_operand_b_i,
     output logic [DATA_WIDTH-1:0]   amo_result_o
@@ -36,32 +37,47 @@ module axi_riscv_amos_alu # (
             amo_result_o = amo_operand_b_i;
         end else if ((amo_op_i[5:4] == axi_pkg::ATOP_ATOMICLOAD) | (amo_op_i[5:4] == axi_pkg::ATOP_ATOMICSTORE)) begin
             // Load operation
-            unique case (amo_op_i[2:0])
-                // the default is to output operand_a
-                axi_pkg::ATOP_ADD: amo_result_o = adder_sum[DATA_WIDTH-1:0];
-                axi_pkg::ATOP_CLR: amo_result_o = amo_operand_a_i & (~amo_operand_b_i);
-                axi_pkg::ATOP_SET: amo_result_o = amo_operand_a_i | amo_operand_b_i;
-                axi_pkg::ATOP_EOR: amo_result_o = amo_operand_a_i ^ amo_operand_b_i;
-                axi_pkg::ATOP_SMAX: begin
-                    adder_operand_b = -$signed(amo_operand_b_i);
-                    amo_result_o = adder_sum[DATA_WIDTH] ? amo_operand_b_i : amo_operand_a_i;
-                end
-                axi_pkg::ATOP_SMIN: begin
-                    adder_operand_b = -$signed(amo_operand_b_i);
-                    amo_result_o = adder_sum[DATA_WIDTH] ? amo_operand_a_i : amo_operand_b_i;
-                end
-                axi_pkg::ATOP_UMAX: begin
-                    adder_operand_a = $unsigned(amo_operand_a_i);
-                    adder_operand_b = -$unsigned(amo_operand_b_i);
-                    amo_result_o = adder_sum[DATA_WIDTH] ? amo_operand_b_i : amo_operand_a_i;
-                end
-                axi_pkg::ATOP_UMIN: begin
-                    adder_operand_a = $unsigned(amo_operand_a_i);
-                    adder_operand_b = -$unsigned(amo_operand_b_i);
-                    amo_result_o = adder_sum[DATA_WIDTH] ? amo_operand_a_i : amo_operand_b_i;
-                end
-                default: amo_result_o = '0;
-            endcase
+            if (amo_xop_i[5:0] != ariane_pkg::XAMO_ATOP_NONE) begin
+                // eXtended Atomic Memory Operations
+                unique case (amo_xop_i[5:0])
+                    ariane_pkg::XAMO_ATOP_INC: begin
+                        amo_result_o = amo_operand_a_i + 1;
+                        // $display("[XAMO:axi_riscv_amos_alu] XAMO_ATOP_INC (amo_operand_a_i=%x, amo_result_o=%x)", amo_operand_a_i, amo_result_o);
+                    end
+                    ariane_pkg::XAMO_ATOP_DEC: begin
+                        amo_result_o = amo_operand_a_i - 1;
+                        // $display("[XAMO:axi_riscv_amos_alu] XAMO_ATOP_DEC (amo_operand_a_i=%x, amo_result_o=%x)", amo_operand_a_i, amo_result_o);
+                    end
+                    default: amo_result_o = '0;
+                endcase
+            end else begin
+                unique case (amo_op_i[2:0])
+                    // the default is to output operand_a
+                    axi_pkg::ATOP_ADD: amo_result_o = adder_sum[DATA_WIDTH-1:0];
+                    axi_pkg::ATOP_CLR: amo_result_o = amo_operand_a_i & (~amo_operand_b_i);
+                    axi_pkg::ATOP_SET: amo_result_o = amo_operand_a_i | amo_operand_b_i;
+                    axi_pkg::ATOP_EOR: amo_result_o = amo_operand_a_i ^ amo_operand_b_i;
+                    axi_pkg::ATOP_SMAX: begin
+                        adder_operand_b = -$signed(amo_operand_b_i);
+                        amo_result_o = adder_sum[DATA_WIDTH] ? amo_operand_b_i : amo_operand_a_i;
+                    end
+                    axi_pkg::ATOP_SMIN: begin
+                        adder_operand_b = -$signed(amo_operand_b_i);
+                        amo_result_o = adder_sum[DATA_WIDTH] ? amo_operand_a_i : amo_operand_b_i;
+                    end
+                    axi_pkg::ATOP_UMAX: begin
+                        adder_operand_a = $unsigned(amo_operand_a_i);
+                        adder_operand_b = -$unsigned(amo_operand_b_i);
+                        amo_result_o = adder_sum[DATA_WIDTH] ? amo_operand_b_i : amo_operand_a_i;
+                    end
+                    axi_pkg::ATOP_UMIN: begin
+                        adder_operand_a = $unsigned(amo_operand_a_i);
+                        adder_operand_b = -$unsigned(amo_operand_b_i);
+                        amo_result_o = adder_sum[DATA_WIDTH] ? amo_operand_a_i : amo_operand_b_i;
+                    end
+                    default: amo_result_o = '0;
+                endcase
+            end
         end
     end
 

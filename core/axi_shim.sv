@@ -59,6 +59,7 @@ module axi_shim #(
   input  logic [AxiIdWidth-1:0]           wr_id_i,
   input  logic                            wr_lock_i,
   input  logic [5:0]                      wr_atop_i,
+  input  logic [5:0]                      wr_xatop_i,
   // write response
   input  logic                            wr_rdy_i,
   output logic                            wr_valid_o,
@@ -96,7 +97,7 @@ module axi_shim #(
   assign axi_req_o.aw.cache  = axi_pkg::CACHE_MODIFIABLE;
   assign axi_req_o.aw.qos    = 4'b0;
   assign axi_req_o.aw.atop   = wr_atop_i;
-  assign axi_req_o.aw.user   = '0;
+  assign axi_req_o.aw.user   = wr_xatop_i;
 
   // data
   assign axi_req_o.w.data    = wr_data_i[wr_cnt_q];

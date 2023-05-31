@@ -78,6 +78,7 @@ module wt_axi_adapter import ariane_pkg::*; import wt_cache_pkg::*; #(
   logic [AXI_USER_WIDTH-1:0] axi_rd_user;
   logic [AxiNumWords-1:0][(AxiDataWidth/8)-1:0]  axi_wr_be;
   logic [5:0] axi_wr_atop;
+  logic [5:0] axi_wr_xatop;
   logic invalidate;
   logic [$clog2(AxiDataWidth/8)-1:0] amo_off_d, amo_off_q;
   // AMO generates r beat
@@ -136,6 +137,7 @@ module wt_axi_adapter import ariane_pkg::*; import wt_cache_pkg::*; #(
     axi_wr_be    = '0;
     axi_wr_lock  = '0;
     axi_wr_atop  = '0;
+    axi_wr_xatop = '0;
     amo_off_d    = '0;
     amo_gen_r_d  = amo_gen_r_q;
 
@@ -248,6 +250,21 @@ module wt_axi_adapter import ariane_pkg::*; import wt_cache_pkg::*; #(
               AMO_MAXU: axi_wr_atop  = {axi_pkg::ATOP_ATOMICLOAD, axi_pkg::ATOP_LITTLE_END, axi_pkg::ATOP_UMAX};
               AMO_MIN:  axi_wr_atop  = {axi_pkg::ATOP_ATOMICLOAD, axi_pkg::ATOP_LITTLE_END, axi_pkg::ATOP_SMIN};
               AMO_MINU: axi_wr_atop  = {axi_pkg::ATOP_ATOMICLOAD, axi_pkg::ATOP_LITTLE_END, axi_pkg::ATOP_UMIN};
+
+              // eXtended Atomic Memory Operations
+              // note: ATOP_UMIN used in axi_wr_atop just to indicate that this is a valid AMO operation to the AXI interface
+              //       and it waits for the operation to finish.
+              //       Our axi_riscv_amos_alu checks that axi_wr_xatop != XAMO_ATOP_NONE and ignores the axi_wr_atop operation
+              XAMO_INC: begin
+                $display("[XAMO:wt_axi_adapter] XAMO_INC");
+                axi_wr_atop  = {axi_pkg::ATOP_ATOMICLOAD, axi_pkg::ATOP_LITTLE_END, axi_pkg::ATOP_UMIN};
+                axi_wr_xatop = ariane_pkg::XAMO_ATOP_INC;
+              end
+              XAMO_DEC: begin
+                $display("[XAMO:wt_axi_adapter] XAMO_DEC");
+                axi_wr_atop  = {axi_pkg::ATOP_ATOMICLOAD, axi_pkg::ATOP_LITTLE_END, axi_pkg::ATOP_UMIN};
+                axi_wr_xatop = ariane_pkg::XAMO_ATOP_DEC;
+              end
               default: ; // Do nothing
             endcase
           end
@@ -626,6 +643,7 @@ module wt_axi_adapter import ariane_pkg::*; import wt_cache_pkg::*; #(
     .wr_id_i         ( axi_wr_id_in      ),
     .wr_lock_i       ( axi_wr_lock       ),
     .wr_atop_i       ( axi_wr_atop       ),
+    .wr_xatop_i      ( axi_wr_xatop      ),
     .wr_rdy_i        ( axi_wr_rdy        ),
     .wr_valid_o      ( axi_wr_valid      ),
     .wr_id_o         ( axi_wr_id_out     ),
